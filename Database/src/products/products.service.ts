@@ -22,7 +22,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
   }
 
   async findByName(name: string) {
-    return this.product.findUnique({ where: { name: name } });
+    return this.product.findUnique({ where: { name } });
   }
 
   async update(id: number, data: UpdateProductDto) {
