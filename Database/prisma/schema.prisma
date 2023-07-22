@@ -10,15 +10,166 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  shops Shop[]
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  name     String?
+  password String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  Buyer    Buyer[]
+  Seller   Seller[]
+  Supplier Supplier[]
+
+  @@map("user")
 }
 
-model Shop {
-  id      Int    @id @default(autoincrement())
-  name    String
-  owner   User   @relation(fields: [ownerId], references: [id])
-  ownerId Int
+model Buyer {
+  id Int @id @default(autoincrement())
+
+  User   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  BuyerOrders BuyerOrder[]
+
+  @@map("buyer")
+}
+
+model Seller {
+  id Int @id @default(autoincrement())
+
+  User   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  SellerOffers SellerOffer[]
+  SellerOrders SellerOrder[]
+
+  @@map("seller")
+}
+
+model Supplier {
+  id Int @id @default(autoincrement())
+
+  User   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  SupplierOffers SupplierOffer[]
+
+  @@map("supplier")
+}
+
+model SellerOrder {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  Seller   Seller? @relation(fields: [sellerId], references: [id])
+  sellerId Int?
+
+  SupplierOffer   SupplierOffer? @relation(fields: [supplierOfferId], references: [id])
+  supplierOfferId Int?
+
+  @@map("sellerOrder")
+}
+
+model BuyerOrder {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  Buyer   Buyer? @relation(fields: [buyerId], references: [id])
+  buyerId Int?
+
+  SellerOffer   SellerOffer? @relation(fields: [sellerOfferId], references: [id])
+  sellerOfferId Int?
+
+  @@map("buyerOrder")
+}
+
+model SupplierOffer {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  Supplier   Supplier? @relation(fields: [supplierId], references: [id])
+  supplierId Int?
+
+  OrderToSuppliers SellerOrder[]
+
+  SupplierSubOffers SupplierSubOffer[]
+
+  closed Boolean @default(false)
+
+  @@map("supplierOffers")
+}
+
+model SellerOffer {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  Seller   Seller? @relation(fields: [sellerId], references: [id])
+  sellerId Int?
+
+  OrderFromClients BuyerOrder[]
+
+  SellerSubOffers SellerSubOffer[]
+
+  closed Boolean @default(false)
+
+  @@map("sellerOffers")
+}
+
+model SupplierSubOffer {
+  id       Int   @id @default(autoincrement())
+  quantity Int
+  price    Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  product   Product? @relation(fields: [productId], references: [id])
+  productId Int?
+
+  SupplierOffer   SupplierOffer? @relation(fields: [supplierOfferId], references: [id])
+  supplierOfferId Int?
+
+  @@map("supplierSubOffer")
+}
+
+model SellerSubOffer {
+  id       Int   @id @default(autoincrement())
+  quantity Int
+  price    Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  product   Product? @relation(fields: [productId], references: [id])
+  productId Int?
+
+  SellerOffer   SellerOffer? @relation(fields: [sellerOfferId], references: [id])
+  sellerOfferId Int?
+
+  @@map("sellerSubOffer")
+}
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  image       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  SupplierSubOffers SupplierSubOffer[]
+  SellerSubOffers   SellerSubOffer[]
+
+  @@map("product")
 }
