@@ -97,6 +97,15 @@ describe('SellerOffersController', () => {
         createdSellerOffer,
       );
     });
+
+    it('should throw BadRequestException if seller ID is not provided', async () => {
+      const newSellerOffer: CreateSellerOfferDto = {
+        sellerId: null,
+      };
+      await expect(controller.create(newSellerOffer)).rejects.toThrowError(
+        BadRequestException,
+      );
+    });
   });
 
   describe('update', () => {

@@ -42,6 +42,15 @@ export class ProductsController {
 
   @Post()
   async create(@Body() createDto: CreateProductDto): Promise<Product> {
+    if (!createDto.name || createDto.name === '') {
+      throw new BadRequestException('Name is required');
+    }
+    if (createDto.name.length < 3) {
+      throw new BadRequestException('Name must be at least 3 characters');
+    }
+    if (createDto.name.length > 200) {
+      throw new BadRequestException('Name must be less than 200 characters');
+    }
     const existedProduct = await this.productsService.findByName(
       createDto.name,
     );

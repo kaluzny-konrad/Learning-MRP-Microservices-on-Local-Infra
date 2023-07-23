@@ -42,6 +42,9 @@ export class SellerOffersController {
 
   @Post()
   async create(@Body() createDto: CreateSellerOfferDto): Promise<SellerOffer> {
+    if (!createDto.sellerId) {
+      throw new BadRequestException('Seller ID is required');
+    }
     return await this.sellerOffersService.create(createDto);
   }
 

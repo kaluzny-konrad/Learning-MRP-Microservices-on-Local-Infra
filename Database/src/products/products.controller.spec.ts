@@ -123,6 +123,54 @@ describe('ProductsController', () => {
         BadRequestException,
       );
     });
+
+    it('should throw BadRequestException if name is empty', async () => {
+      const newProduct: CreateProductDto = {
+        name: '',
+        description: 'Description',
+        image: 'image.jpg',
+      };
+
+      await expect(controller.create(newProduct)).rejects.toThrowError(
+        BadRequestException,
+      );
+    });
+
+    it('should throw BadRequestException if name is not provided', async () => {
+      const newProduct: CreateProductDto = {
+        name: null,
+        description: 'Description',
+        image: 'image.jpg',
+      };
+
+      await expect(controller.create(newProduct)).rejects.toThrowError(
+        BadRequestException,
+      );
+    });
+
+    it('should throw BadRequestException if name is less than 3 characters', async () => {
+      const newProduct: CreateProductDto = {
+        name: '12',
+        description: 'Description',
+        image: 'image.jpg',
+      };
+
+      await expect(controller.create(newProduct)).rejects.toThrowError(
+        BadRequestException,
+      );
+    });
+
+    it('should throw BadRequestException if name is more than 200 characters', async () => {
+      const newProduct: CreateProductDto = {
+        name: 'a'.repeat(201),
+        description: 'Description',
+        image: 'image.jpg',
+      };
+
+      await expect(controller.create(newProduct)).rejects.toThrowError(
+        BadRequestException,
+      );
+    });
   });
 
   describe('update', () => {
