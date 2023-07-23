@@ -3,8 +3,8 @@ import { SellerOffersController } from './seller-offers.controller';
 import { SellerOffersService } from './seller-offers.service';
 import { SellerOffer } from '@prisma/client';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CreateSellerOfferDto } from 'libs/validators/sellerOffer';
-import { UpdateSellerOfferDto } from 'libs/validators/sellerOffer';
+import { CreateSellerOfferDto } from './sellerOfferDto';
+import { UpdateSellerOfferDto } from './sellerOfferDto';
 
 describe('SellerOffersController', () => {
   let controller: SellerOffersController;

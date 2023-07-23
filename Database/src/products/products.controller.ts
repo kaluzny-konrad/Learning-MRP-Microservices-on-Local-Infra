@@ -10,8 +10,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { CreateProductDto } from 'libs/validators/product';
-import { UpdateProductDto } from 'libs/validators/product';
+import { CreateProductDto } from './productDto';
+import { UpdateProductDto } from './productDto';
 import { Product } from '@prisma/client';
 
 @Controller('products')
@@ -42,15 +42,6 @@ export class ProductsController {
 
   @Post()
   async create(@Body() createDto: CreateProductDto): Promise<Product> {
-    if (!createDto.name || createDto.name === '') {
-      throw new BadRequestException('Name is required');
-    }
-    if (createDto.name.length < 3) {
-      throw new BadRequestException('Name must be at least 3 characters');
-    }
-    if (createDto.name.length > 200) {
-      throw new BadRequestException('Name must be less than 200 characters');
-    }
     const existedProduct = await this.productsService.findByName(
       createDto.name,
     );

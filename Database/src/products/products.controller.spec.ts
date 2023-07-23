@@ -3,8 +3,8 @@ import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 import { Product } from '@prisma/client';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CreateProductDto } from 'libs/validators/product';
-import { UpdateProductDto } from 'libs/validators/product';
+import { CreateProductDto } from './productDto';
+import { UpdateProductDto } from './productDto';
 
 describe('ProductsController', () => {
   let controller: ProductsController;

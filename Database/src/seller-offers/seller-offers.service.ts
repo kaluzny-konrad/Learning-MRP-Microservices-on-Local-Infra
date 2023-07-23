@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { CreateSellerOfferDto } from 'libs/validators/sellerOffer';
-import { UpdateSellerOfferDto } from 'libs/validators/sellerOffer';
+import { CreateSellerOfferDto } from './sellerOfferDto';
+import { UpdateSellerOfferDto } from './sellerOfferDto';
 import { SellerOffer } from '@prisma/client';
 
 @Injectable()
