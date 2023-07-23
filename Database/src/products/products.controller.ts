@@ -36,6 +36,7 @@ export class ProductsController {
     if (existedProduct) {
       return existedProduct;
     }
+
     throw new NotFoundException('Product not found');
   }
 
