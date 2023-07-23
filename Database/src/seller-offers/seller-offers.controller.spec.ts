@@ -3,8 +3,8 @@ import { SellerOffersController } from './seller-offers.controller';
 import { SellerOffersService } from './seller-offers.service';
 import { SellerOffer } from '@prisma/client';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CreateSellerOfferDto } from './dto/create-seller-offer.dto';
-import { UpdateSellerOfferDto } from './dto/update-seller-offer.dto';
+import { CreateSellerOfferDto } from 'libs/validators/sellerOffer';
+import { UpdateSellerOfferDto } from 'libs/validators/sellerOffer';
 
 describe('SellerOffersController', () => {
   let controller: SellerOffersController;
@@ -64,7 +64,7 @@ describe('SellerOffersController', () => {
     });
 
     it('should throw NotFoundException if seller offer with given ID does not exist', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+      jest.spyOn(service, 'findOne').mockResolvedValue(null!);
 
       await expect(controller.findOne('999')).rejects.toThrowError(
         NotFoundException,
@@ -100,7 +100,7 @@ describe('SellerOffersController', () => {
 
     it('should throw BadRequestException if seller ID is not provided', async () => {
       const newSellerOffer: CreateSellerOfferDto = {
-        sellerId: null,
+        sellerId: null!,
       };
       await expect(controller.create(newSellerOffer)).rejects.toThrowError(
         BadRequestException,
@@ -116,7 +116,7 @@ describe('SellerOffersController', () => {
       const updatedSellerOffer: SellerOffer = {
         id: sellerOffer1.id,
         sellerId: sellerOffer1.sellerId,
-        closed: updateData.closed,
+        closed: updateData.closed!,
         createdAt: sellerOffer1.createdAt,
         updatedAt: new Date(),
       };
@@ -133,7 +133,7 @@ describe('SellerOffersController', () => {
       const updateData: UpdateSellerOfferDto = {
         closed: true,
       };
-      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+      jest.spyOn(service, 'findOne').mockResolvedValue(null!);
 
       await expect(controller.update('999', updateData)).rejects.toThrowError(
         NotFoundException,
@@ -159,7 +159,7 @@ describe('SellerOffersController', () => {
     });
 
     it('should throw NotFoundException if seller offer with given ID does not exist', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+      jest.spyOn(service, 'findOne').mockResolvedValue(null!);
 
       await expect(controller.remove('999')).rejects.toThrowError(
         NotFoundException,

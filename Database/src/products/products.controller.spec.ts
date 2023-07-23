@@ -3,8 +3,8 @@ import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 import { Product } from '@prisma/client';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateProductDto } from 'libs/validators/product';
+import { UpdateProductDto } from 'libs/validators/product';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
@@ -90,8 +90,8 @@ describe('ProductsController', () => {
       const createdProduct: Product = {
         id: 3,
         name: newProduct.name,
-        description: newProduct.description,
-        image: newProduct.image,
+        description: newProduct.description!,
+        image: newProduct.image!,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -138,7 +138,7 @@ describe('ProductsController', () => {
 
     it('should throw BadRequestException if name is not provided', async () => {
       const newProduct: CreateProductDto = {
-        name: null,
+        name: null!,
         description: 'Description',
         image: 'image.jpg',
       };
@@ -179,7 +179,7 @@ describe('ProductsController', () => {
       const updatedProduct: Product = {
         id: product1.id,
         name: product1.name,
-        description: updateData.description,
+        description: updateData.description!,
         image: product1.image,
         createdAt: product1.createdAt,
         updatedAt: new Date(),

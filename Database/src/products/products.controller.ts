@@ -10,8 +10,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateProductDto } from 'libs/validators/product';
+import { UpdateProductDto } from 'libs/validators/product';
 import { Product } from '@prisma/client';
 
 @Controller('products')

@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { CreateSellerOfferDto } from './dto/create-seller-offer.dto';
-import { UpdateSellerOfferDto } from './dto/update-seller-offer.dto';
+import { CreateSellerOfferDto } from 'libs/validators/sellerOffer';
+import { UpdateSellerOfferDto } from 'libs/validators/sellerOffer';
 import { SellerOffer } from '@prisma/client';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class SellerOffersService extends PrismaClient implements OnModuleInit {
     return await this.sellerOffer.findMany();
   }
 
-  async findOne(id: number): Promise<SellerOffer> {
+  async findOne(id: number): Promise<SellerOffer | null> {
     return await this.sellerOffer.findUnique({ where: { id } });
   }
 

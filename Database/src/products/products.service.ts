@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from 'libs/validators/product';
+import { CreateProductDto } from 'libs/validators/product';
 import { Product } from '@prisma/client';
 
 @Injectable()
@@ -18,11 +18,11 @@ export class ProductsService extends PrismaClient implements OnModuleInit {
     return await this.product.findMany();
   }
 
-  async findOne(id: number): Promise<Product> {
+  async findOne(id: number): Promise<Product | null> {
     return await this.product.findUnique({ where: { id } });
   }
 
-  async findByName(name: string): Promise<Product> {
+  async findByName(name: string): Promise<Product | null> {
     return await this.product.findUnique({ where: { name } });
   }
 

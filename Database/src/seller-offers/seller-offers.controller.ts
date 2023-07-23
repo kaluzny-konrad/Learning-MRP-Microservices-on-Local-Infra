@@ -10,8 +10,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { SellerOffersService } from './seller-offers.service';
-import { CreateSellerOfferDto } from './dto/create-seller-offer.dto';
-import { UpdateSellerOfferDto } from './dto/update-seller-offer.dto';
+import { CreateSellerOfferDto } from 'libs/validators/sellerOffer';
+import { UpdateSellerOfferDto } from 'libs/validators/sellerOffer';
 import { SellerOffer } from '@prisma/client';
 
 @Controller('seller-offers')
