@@ -10,9 +10,14 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { SellerOffersService } from './seller-offers.service';
-import { CreateSellerOfferDto } from './sellerOfferDto';
-import { UpdateSellerOfferDto } from './sellerOfferDto';
+import {
+  CreateSellerOfferDto,
+  CreateSellerOfferValidator,
+  UpdateSellerOfferDto,
+  UpdateSellerOfferValidator,
+} from './sellerOfferDto';
 import { SellerOffer } from '@prisma/client';
+import { fromZodError } from 'zod-validation-error';
 
 @Controller('seller-offers')
 export class SellerOffersController {
@@ -26,25 +31,23 @@ export class SellerOffersController {
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<SellerOffer> {
     const idNumber = Number(id);
-    if (isNaN(idNumber)) {
+    if (isNaN(idNumber))
       throw new BadRequestException(
         'Invalid ID format. Please provide a valid number.',
       );
-    }
 
     const existedSellerOffer = await this.sellerOffersService.findOne(idNumber);
-    if (existedSellerOffer) {
-      return existedSellerOffer;
-    }
+    if (existedSellerOffer) return existedSellerOffer;
 
-    throw new NotFoundException('Seller Offer not found');
+    throw new NotFoundException('Provided ID not found');
   }
 
   @Post()
   async create(@Body() createDto: CreateSellerOfferDto): Promise<SellerOffer> {
-    if (!createDto.sellerId) {
-      throw new BadRequestException('Seller ID is required');
-    }
+    const parsedDto = CreateSellerOfferValidator.safeParse(createDto);
+    if (!parsedDto.success)
+      throw new BadRequestException(fromZodError(parsedDto.error).message);
+
     return await this.sellerOffersService.create(createDto);
   }
 
@@ -53,6 +56,10 @@ export class SellerOffersController {
     @Param('id') id: string,
     @Body() updateDto: UpdateSellerOfferDto,
   ): Promise<SellerOffer> {
+    const parsedDto = UpdateSellerOfferValidator.safeParse(updateDto);
+    if (!parsedDto.success)
+      throw new BadRequestException(fromZodError(parsedDto.error).message);
+
     const idNumber = Number(id);
     if (isNaN(idNumber)) {
       throw new BadRequestException(
@@ -64,9 +71,9 @@ export class SellerOffersController {
     if (existedSellerOffer) {
       existedSellerOffer.updatedAt = new Date();
       return await this.sellerOffersService.update(idNumber, updateDto);
-    } else {
-      throw new NotFoundException('Seller Offer not found');
     }
+
+    throw new NotFoundException('Provided ID not found');
   }
 
   @Delete(':id')
@@ -79,10 +86,8 @@ export class SellerOffersController {
     }
 
     const existedSellerOffer = await this.sellerOffersService.findOne(idNumber);
-    if (existedSellerOffer) {
-      return this.sellerOffersService.remove(idNumber);
-    } else {
-      throw new NotFoundException('Seller Offer not found');
-    }
+    if (existedSellerOffer) return this.sellerOffersService.remove(idNumber);
+
+    throw new NotFoundException('Provided ID not found');
   }
 }

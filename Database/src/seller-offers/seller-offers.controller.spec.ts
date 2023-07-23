@@ -1,14 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { SellerOffer } from '@prisma/client';
 import { SellerOffersController } from './seller-offers.controller';
 import { SellerOffersService } from './seller-offers.service';
-import { SellerOffer } from '@prisma/client';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CreateSellerOfferDto } from './sellerOfferDto';
-import { UpdateSellerOfferDto } from './sellerOfferDto';
+import { CreateSellerOfferDto, UpdateSellerOfferDto } from './sellerOfferDto';
 
 describe('SellerOffersController', () => {
   let controller: SellerOffersController;
-  let service: SellerOffersService;
+  const serviceMock = {
+    findAll: jest.fn(),
+    findOne: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
+  } as any as SellerOffersService;
 
   const sellerOffer1: SellerOffer = {
     id: 1,
@@ -33,11 +38,10 @@ describe('SellerOffersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SellerOffersController],
-      providers: [SellerOffersService],
+      providers: [{ provide: SellerOffersService, useValue: serviceMock }],
     }).compile();
 
     controller = module.get<SellerOffersController>(SellerOffersController);
-    service = module.get<SellerOffersService>(SellerOffersService);
   });
 
   it('should be defined', () => {
@@ -48,7 +52,7 @@ describe('SellerOffersController', () => {
     it('should return an array of seller offers', async () => {
       const sellerOffers: SellerOffer[] = getCorrectSellerOffers();
 
-      jest.spyOn(service, 'findAll').mockResolvedValue(sellerOffers);
+      jest.spyOn(serviceMock, 'findAll').mockResolvedValue(sellerOffers);
 
       expect(await controller.findAll()).toEqual(sellerOffers);
     });
@@ -56,7 +60,7 @@ describe('SellerOffersController', () => {
 
   describe('findOne', () => {
     it('should return a seller offer by ID', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(sellerOffer1);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(sellerOffer1);
 
       const result = await controller.findOne('1');
       expect(result).toEqual(sellerOffer1);
@@ -64,7 +68,7 @@ describe('SellerOffersController', () => {
     });
 
     it('should throw NotFoundException if seller offer with given ID does not exist', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(null!);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(null!);
 
       await expect(controller.findOne('999')).rejects.toThrowError(
         NotFoundException,
@@ -91,7 +95,7 @@ describe('SellerOffersController', () => {
         updatedAt: new Date(),
       };
 
-      jest.spyOn(service, 'create').mockResolvedValue(createdSellerOffer);
+      jest.spyOn(serviceMock, 'create').mockResolvedValue(createdSellerOffer);
 
       expect(await controller.create(newSellerOffer)).toEqual(
         createdSellerOffer,
@@ -121,8 +125,8 @@ describe('SellerOffersController', () => {
         updatedAt: new Date(),
       };
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(sellerOffer1);
-      jest.spyOn(service, 'update').mockResolvedValue(updatedSellerOffer);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(sellerOffer1);
+      jest.spyOn(serviceMock, 'update').mockResolvedValue(updatedSellerOffer);
 
       expect(await controller.update('1', updateData)).toEqual(
         updatedSellerOffer,
@@ -133,7 +137,7 @@ describe('SellerOffersController', () => {
       const updateData: UpdateSellerOfferDto = {
         closed: true,
       };
-      jest.spyOn(service, 'findOne').mockResolvedValue(null!);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(null!);
 
       await expect(controller.update('999', updateData)).rejects.toThrowError(
         NotFoundException,
@@ -152,14 +156,14 @@ describe('SellerOffersController', () => {
 
   describe('remove', () => {
     it('should delete a seller offer', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(sellerOffer1);
-      jest.spyOn(service, 'remove').mockResolvedValue(sellerOffer1);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(sellerOffer1);
+      jest.spyOn(serviceMock, 'remove').mockResolvedValue(sellerOffer1);
 
       expect(await controller.remove('1')).toEqual(sellerOffer1);
     });
 
     it('should throw NotFoundException if seller offer with given ID does not exist', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(null!);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(null!);
 
       await expect(controller.remove('999')).rejects.toThrowError(
         NotFoundException,

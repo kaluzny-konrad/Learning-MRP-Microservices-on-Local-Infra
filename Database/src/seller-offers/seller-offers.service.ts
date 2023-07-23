@@ -1,8 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { CreateSellerOfferDto } from './sellerOfferDto';
-import { UpdateSellerOfferDto } from './sellerOfferDto';
-import { SellerOffer } from '@prisma/client';
+import { PrismaClient, SellerOffer } from '@prisma/client';
+import { CreateSellerOfferDto, UpdateSellerOfferDto } from './sellerOfferDto';
 
 @Injectable()
 export class SellerOffersService extends PrismaClient implements OnModuleInit {

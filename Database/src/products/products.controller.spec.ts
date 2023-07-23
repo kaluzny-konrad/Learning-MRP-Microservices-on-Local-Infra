@@ -1,14 +1,20 @@
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Product } from '@prisma/client';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
-import { Product } from '@prisma/client';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CreateProductDto } from './productDto';
-import { UpdateProductDto } from './productDto';
+import { CreateProductDto, UpdateProductDto } from './productDto';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
-  let service: ProductsService;
+  const serviceMock = {
+    findAll: jest.fn(),
+    findOne: jest.fn(),
+    findByName: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
+  } as any as ProductsService;
 
   const product1: Product = {
     id: 1,
@@ -35,11 +41,10 @@ describe('ProductsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProductsController],
-      providers: [ProductsService],
+      providers: [{ provide: ProductsService, useValue: serviceMock }],
     }).compile();
 
     controller = module.get<ProductsController>(ProductsController);
-    service = module.get<ProductsService>(ProductsService);
   });
 
   it('should be defined', () => {
@@ -50,7 +55,7 @@ describe('ProductsController', () => {
     it('should return an array of products', async () => {
       const products: Product[] = getCorrectProducts();
 
-      jest.spyOn(service, 'findAll').mockResolvedValue(products);
+      jest.spyOn(serviceMock, 'findAll').mockResolvedValue(products);
 
       expect(await controller.findAll()).toEqual(products);
     });
@@ -58,7 +63,7 @@ describe('ProductsController', () => {
 
   describe('findOne', () => {
     it('should return a product by ID', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(product1);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(product1);
 
       const result = await controller.findOne('1');
       expect(result).toEqual(product1);
@@ -66,7 +71,7 @@ describe('ProductsController', () => {
     });
 
     it('should throw NotFoundException if product with given ID does not exist', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(null);
 
       await expect(controller.findOne('999')).rejects.toThrowError(
         NotFoundException,
@@ -96,8 +101,8 @@ describe('ProductsController', () => {
         updatedAt: new Date(),
       };
 
-      jest.spyOn(service, 'findByName').mockResolvedValue(null);
-      jest.spyOn(service, 'create').mockResolvedValue(createdProduct);
+      jest.spyOn(serviceMock, 'findByName').mockResolvedValue(null);
+      jest.spyOn(serviceMock, 'create').mockResolvedValue(createdProduct);
 
       expect(await controller.create(newProduct)).toEqual(createdProduct);
     });
@@ -117,7 +122,7 @@ describe('ProductsController', () => {
         image: 'otherImage.jpg',
       };
 
-      jest.spyOn(service, 'findByName').mockResolvedValue(existingProduct);
+      jest.spyOn(serviceMock, 'findByName').mockResolvedValue(existingProduct);
 
       await expect(controller.create(newProduct)).rejects.toThrowError(
         BadRequestException,
@@ -185,15 +190,15 @@ describe('ProductsController', () => {
         updatedAt: new Date(),
       };
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(product1);
-      jest.spyOn(service, 'update').mockResolvedValue(updatedProduct);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(product1);
+      jest.spyOn(serviceMock, 'update').mockResolvedValue(updatedProduct);
 
       expect(await controller.update('1', updateData)).toEqual(updatedProduct);
     });
 
     it('should throw NotFoundException if product with given ID does not exist', async () => {
       const updateData: UpdateProductDto = { description: 'New Description' };
-      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(null);
 
       await expect(controller.update('999', updateData)).rejects.toThrowError(
         NotFoundException,
@@ -210,14 +215,14 @@ describe('ProductsController', () => {
 
   describe('remove', () => {
     it('should delete a product', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(product1);
-      jest.spyOn(service, 'remove').mockResolvedValue(product1);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(product1);
+      jest.spyOn(serviceMock, 'remove').mockResolvedValue(product1);
 
       expect(await controller.remove('1')).toEqual(product1);
     });
 
     it('should throw NotFoundException if product with given ID does not exist', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+      jest.spyOn(serviceMock, 'findOne').mockResolvedValue(null);
 
       await expect(controller.remove('999')).rejects.toThrowError(
         NotFoundException,
