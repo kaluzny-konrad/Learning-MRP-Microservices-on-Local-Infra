@@ -12,40 +12,34 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import { UsersService } from './users.service';
 import {
   AuthUserDto,
   CreateUserDto,
   CreateUserValidator,
-  SaveUpdateUserDto,
-  SaveUserDto,
+  UpdateUser,
+  CreateUser,
   UpdateUserDto,
   UpdateUserValidator,
 } from './userDto';
 import { fromZodError } from 'zod-validation-error';
 import { ConfigService } from '@nestjs/config';
 
-@Controller('user')
-export class UserController {
+@Controller('users')
+export class UsersController {
   constructor(
-    private readonly userService: UserService,
+    private readonly usersService: UsersService,
     private configService: ConfigService,
   ) {}
 
   @Get()
   async findAll() {
-    return await this.userService.findAll();
+    return await this.usersService.findAll();
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const idNumber = Number(id);
-    if (isNaN(idNumber))
-      throw new BadRequestException(
-        'Invalid ID format. Please provide a valid number.',
-      );
-
-    const existedUser = await this.userService.findOne(idNumber);
+    const existedUser = await this.usersService.findOne(id);
     if (existedUser) return existedUser;
 
     throw new NotFoundException('Provided ID not found');
@@ -57,7 +51,9 @@ export class UserController {
     if (!parsedDto.success)
       throw new BadRequestException(fromZodError(parsedDto.error).message);
 
-    const existedUser = await this.userService.findByEmail(createUserDto.email);
+    const existedUser = await this.usersService.findByEmail(
+      createUserDto.email,
+    );
     if (existedUser)
       throw new BadRequestException('Provided email is already existed');
 
@@ -65,23 +61,25 @@ export class UserController {
       createUserDto.password,
     );
 
-    const saveUserDto: SaveUserDto = {
+    const saveUser: CreateUser = {
       email: createUserDto.email,
       name: createUserDto.name,
       passwordHash: hashedPassword,
       passwordSalt: individualSalt,
     };
 
-    console.log(saveUserDto);
+    console.log(saveUser);
 
-    return this.userService.create(saveUserDto);
+    return this.usersService.create(saveUser);
   }
 
   @Post('auth')
   async authenticate(@Body() authUserDto: AuthUserDto) {
-    const existedUser = await this.userService.findByEmail(authUserDto.email);
+    const existedUser = await this.usersService.findByEmail(authUserDto.email);
     if (!existedUser)
-      throw new BadRequestException('Provided email is not existed');
+      throw new BadRequestException(
+        'Provided email or password is not existed',
+      );
 
     const { hashedPassword } = await this.getHashedPasswordWithSalt(
       authUserDto.password,
@@ -89,7 +87,9 @@ export class UserController {
     );
 
     if (existedUser.passwordHash !== hashedPassword)
-      throw new BadRequestException('Provided password is not correct');
+      throw new BadRequestException(
+        'Provided email or password is not correct',
+      );
 
     return existedUser.id;
   }
@@ -100,46 +100,41 @@ export class UserController {
     if (!parsedDto.success)
       throw new BadRequestException(fromZodError(parsedDto.error).message);
 
-    const idNumber = Number(id);
-    if (isNaN(idNumber))
-      throw new BadRequestException(
-        'Invalid ID format. Please provide a valid number.',
-      );
-
-    const existedUser = await this.userService.findOne(idNumber);
+    const existedUser = await this.usersService.findOne(id);
     if (!existedUser) throw new BadRequestException('Provided user not exists');
+
+    if (updateUserDto.email) {
+      const existedUserByEmail = await this.usersService.findByEmail(
+        updateUserDto.email,
+      );
+      if (existedUserByEmail && existedUserByEmail.id !== existedUser.id)
+        throw new BadRequestException('Provided email is already existed');
+    }
 
     if (updateUserDto.password) {
       const { hashedPassword, individualSalt } = await this.getHashedPassword(
         updateUserDto.password,
       );
-      const saveUpdateUserDto: SaveUpdateUserDto = {
+      const saveUpdateUserDto: UpdateUser = {
         email: updateUserDto.email,
         name: updateUserDto.name,
         passwordHash: hashedPassword,
         passwordSalt: individualSalt,
       };
-      return await this.userService.update(+id, saveUpdateUserDto);
+      return await this.usersService.update(id, saveUpdateUserDto);
     } else {
-      const saveUpdateUserDto: SaveUpdateUserDto = {
+      const saveUpdateUserDto: UpdateUser = {
         email: updateUserDto.email,
         name: updateUserDto.name,
       };
-      return await this.userService.update(+id, saveUpdateUserDto);
+      return await this.usersService.update(id, saveUpdateUserDto);
     }
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    const idNumber = Number(id);
-    if (isNaN(idNumber)) {
-      throw new BadRequestException(
-        'Invalid ID format. Please provide a valid number.',
-      );
-    }
-
-    const existedUser = await this.userService.findOne(idNumber);
-    if (existedUser) return this.userService.remove(idNumber);
+    const existedUser = await this.usersService.findOne(id);
+    if (existedUser) return this.usersService.remove(id);
 
     throw new NotFoundException('Provided ID not found');
   }

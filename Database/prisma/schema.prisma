@@ -10,7 +10,7 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
+  id    String @id @default(cuid())
   email String @unique
   name  String
 
@@ -31,34 +31,50 @@ model User {
 model Buyer {
   id Int @id @default(autoincrement())
 
-  User   User @relation(fields: [userId], references: [id])
-  userId Int
+  User   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  FirstName String
+  LastName  String
+
+  discountFactor          Float    @default(1)
+  discountFactorUpdatedAt DateTime @default(now()) @updatedAt
 
   BuyerOrders BuyerOrder[]
 
+  @@unique([userId, FirstName, LastName])
   @@map("buyer")
 }
 
 model Seller {
   id Int @id @default(autoincrement())
 
-  User   User @relation(fields: [userId], references: [id])
-  userId Int
+  User   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  companyName String
 
   SellerOffers SellerOffer[]
   SellerOrders SellerOrder[]
 
+  @@unique([userId, companyName])
   @@map("seller")
 }
 
 model Supplier {
   id Int @id @default(autoincrement())
 
-  User   User @relation(fields: [userId], references: [id])
-  userId Int
+  User   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  discountFactor          Float    @default(1)
+  discountFactorUpdatedAt DateTime @default(now()) @updatedAt
+
+  companyName String
 
   SupplierOffers SupplierOffer[]
 
+  @@unique([userId, companyName])
   @@map("supplier")
 }
 
@@ -69,10 +85,10 @@ model SellerOrder {
   updatedAt DateTime @default(now()) @updatedAt
 
   Seller   Seller? @relation(fields: [sellerId], references: [id])
-  sellerId Int?
+  sellerId Int
 
   SupplierOffer   SupplierOffer? @relation(fields: [supplierOfferId], references: [id])
-  supplierOfferId Int?
+  supplierOfferId Int
 
   @@map("sellerOrder")
 }
@@ -83,11 +99,11 @@ model BuyerOrder {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  Buyer   Buyer? @relation(fields: [buyerId], references: [id])
-  buyerId Int?
+  Buyer   Buyer @relation(fields: [buyerId], references: [id])
+  buyerId Int
 
   SellerOffer   SellerOffer? @relation(fields: [sellerOfferId], references: [id])
-  sellerOfferId Int?
+  sellerOfferId Int
 
   @@map("buyerOrder")
 }
@@ -98,8 +114,8 @@ model SupplierOffer {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  Supplier   Supplier? @relation(fields: [supplierId], references: [id])
-  supplierId Int?
+  Supplier   Supplier @relation(fields: [supplierId], references: [id])
+  supplierId Int
 
   OrderToSuppliers SellerOrder[]
 
@@ -116,8 +132,8 @@ model SellerOffer {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  Seller   Seller? @relation(fields: [sellerId], references: [id])
-  sellerId Int?
+  Seller   Seller @relation(fields: [sellerId], references: [id])
+  sellerId Int
 
   OrderFromClients BuyerOrder[]
 
@@ -136,11 +152,11 @@ model SupplierSubOffer {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  product   Product? @relation(fields: [productId], references: [id])
-  productId Int?
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
 
-  SupplierOffer   SupplierOffer? @relation(fields: [supplierOfferId], references: [id])
-  supplierOfferId Int?
+  SupplierOffer   SupplierOffer @relation(fields: [supplierOfferId], references: [id])
+  supplierOfferId Int
 
   @@map("supplierSubOffer")
 }
@@ -153,11 +169,11 @@ model SellerSubOffer {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  product   Product? @relation(fields: [productId], references: [id])
-  productId Int?
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
 
-  SellerOffer   SellerOffer? @relation(fields: [sellerOfferId], references: [id])
-  sellerOfferId Int?
+  SellerOffer   SellerOffer @relation(fields: [sellerOfferId], references: [id])
+  sellerOfferId Int
 
   @@map("sellerSubOffer")
 }

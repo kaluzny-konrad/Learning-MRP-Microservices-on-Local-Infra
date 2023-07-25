@@ -75,7 +75,6 @@ export class ProductsController {
     const existedProduct = await this.productsService.findOne(idNumber);
     if (!existedProduct) throw new NotFoundException('Provided ID not found');
 
-    existedProduct.updatedAt = new Date();
     return await this.productsService.update(idNumber, updateDto);
   }
 

@@ -18,21 +18,12 @@ export const CreateUserValidator = z.object({
 });
 export type CreateUserDto = z.infer<typeof CreateUserValidator>;
 
-export const SaveUserValidator = z.object({
-  email: z
-    .string({
-      required_error: 'Email is required',
-      invalid_type_error: 'Email must be a string',
-    })
-    .email({ message: 'Invalid email' }),
-  name: z
-    .string()
-    .min(3, { message: 'Must be 3 or more characters long' })
-    .max(255, { message: 'Must be 255 or fewer characters long' }),
-  passwordHash: z.string(),
-  passwordSalt: z.string(),
-});
-export type SaveUserDto = z.infer<typeof SaveUserValidator>;
+export interface CreateUser {
+  email: string;
+  name: string;
+  passwordHash: string;
+  passwordSalt: string;
+}
 
 export const UpdateUserValidator = z.object({
   email: z
@@ -54,22 +45,12 @@ export const UpdateUserValidator = z.object({
 });
 export type UpdateUserDto = z.infer<typeof UpdateUserValidator>;
 
-export const SaveUpdateUserValidator = z.object({
-  email: z
-    .string({
-      invalid_type_error: 'Email must be a string',
-    })
-    .email({ message: 'Invalid email' })
-    .optional(),
-  name: z
-    .string()
-    .min(3, { message: 'Must be 3 or more characters long' })
-    .max(255, { message: 'Must be 255 or fewer characters long' })
-    .optional(),
-  passwordHash: z.string().optional(),
-  passwordSalt: z.string().optional(),
-});
-export type SaveUpdateUserDto = z.infer<typeof SaveUpdateUserValidator>;
+export interface UpdateUser {
+  email?: string;
+  name?: string;
+  passwordHash?: string;
+  passwordSalt?: string;
+}
 
 export const AuthUserValidator = z.object({
   email: z
